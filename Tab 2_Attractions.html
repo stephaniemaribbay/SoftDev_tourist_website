@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TourEase – Attractions</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Inter',sans-serif;background:#c9b48a;min-height:100vh;overflow-x:hidden}
+
+    /* ══════════════════════════════════════
+        NAV — transparent, links CENTERED
+       ══════════════════════════════════════ */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 300;
+      height: 50px;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+    }
+    
+    .nav-balance-space {
+      width: 290px;
+    }
+    
+    @media (max-width: 768px) {
+      .nav-balance-space {
+        display: none;
+      }
+      nav {
+        flex-direction: column;
+        height: auto;
+        gap: 10px;
+        padding: 10px;
+      }
+    }
+
+    /* Centered unified group */
+    .nav-center-group {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .nav-logo {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+      letter-spacing: .3px;
+      text-shadow: 0 1px 4px rgba(0,0,0,.4);
+      text-decoration: none;
+    }
+    
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+    
+    .nav-links a {
+      text-decoration: none;
+      color: #fff;
+      font-size: .9rem;
+      font-weight: 500;
+      text-shadow: 0 1px 4px rgba(0,0,0,.4);
+      transition: color .18s;
+      white-space: nowrap;
+    }
+    
+    .nav-links a.active {
+      color: #f0c040 !important;
+      font-weight: 700;
+      border-bottom: 2px solid #f0c040;
+      padding-bottom: 2px;
+    }
+    
+    .nav-links a:hover {
+      color: #f0c040;
+    }
+    
+    /* ══════════════════════════════════════
+        UPDATED SEARCH NAV — FIXED MATCHING LOOK
+       ══════════════════════════════════════ */
+    .nav-search {
+      display: flex;
+      align-items: center;
+      position: relative;
+      width: 320px;
+      justify-content: flex-end;
+    }
+    .search-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .search-icon-svg {
+      position: absolute;
+      left: 14px;
+      width: 14px;
+      height: 14px;
+      color: #666666;
+      z-index: 5;
+      pointer-events: none;
+    }
+    .nav-search input {
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 25px;
+      padding: 6px 90px 6px 36px;
+      color: #000;
+      font-family: 'Inter', sans-serif;
+      font-size: .82rem;
+      width: 280px;
+      height: 36px;
+      outline: none;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .nav-search button {
+      position: absolute;
+      right: 4px;
+      background: #111111;
+      color: #ffffff;
+      border: none;
+      border-radius: 20px;
+      padding: 0 18px;
+      height: 28px;
+      font-family: 'Inter', sans-serif;
+      font-size: .78rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* ══════════════════════════════════════
+        MAP BACKGROUND
+       ══════════════════════════════════════ */
+    .page-bg {
+      min-height: 100vh;
+      padding-top: 90px; 
+      background-image: url('images/Background.jpg'); 
+      background-size: cover;
+      background-position: center top; 
+      background-repeat: no-repeat;
+      background-attachment: scroll;
+      background-color: #c9b48a; 
+      position: relative;
+    }
+
+    /* ══════════════════════════════════════
+        CENTERED CONTENT WRAPPER
+       ══════════════════════════════════════ */
+    .content-wrap{
+      max-width:1260px;
+      margin:0 auto;
+      padding:0 48px;
+      position:relative;
+      z-index:2;
+    }
+
+    /* ══════════════════════════════════════
+        HERO
+       ══════════════════════════════════════ */
+    .hero{
+      text-align:center;
+      padding:48px 0 0;
+    }
+    .hero h1{
+      font-family:'Playfair Display',serif;font-style:italic;
+      font-size:clamp(2rem,4.5vw,3.5rem);
+      color:#fff;
+      text-shadow:0 2px 16px rgba(0,0,0,.45);
+      line-height:1.1;
+    }
+    .hero p{
+      margin-top:10px;
+      color:rgba(255,255,255,.88);
+      font-size:.9rem;
+      text-shadow:0 1px 6px rgba(0,0,0,.4);
+    } 
+
+    /* ══════════════════════════════════════
+        UNIFIED OBLONG PILLS (TABS)
+       ══════════════════════════════════════ */
+    .tab-row, .sub-filters {
+      display: flex;
+      justify-content: flex-start;
+      gap: 10px;
+      padding: 16px 0 0;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+
+    .sub-filters {
+      padding-top: 12px;
+    }
+
+    .tab-btn, .sub-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 24px;
+      height: 38px;
+      border-radius: 50px;
+      background: rgba(245, 240, 225, 0.85);
+      border: 1px solid rgba(0, 0, 0, 0.05); 
+      color: #000000;
+      font-size: 0.84rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: 'Inter', sans-serif;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+      user-select: none;
+      text-transform: capitalize;
+    }
+
+    .tab-btn:hover, .sub-pill:hover {
+      background: rgba(255, 255, 255, 0.95);
+    }
+
+    .tab-btn.active, .sub-pill.active {
+      background: #000000 !important;
+      color: #ffffff !important;
+      border-color: #000000 !important;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    /* ══════════════════════════════════════
+        CARDS GRID — 5 col format
+       ══════════════════════════════════════ */
+    .cards-grid{
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:14px;
+      padding:18px 0 80px; 
+    }
+    @media(max-width:1200px){.cards-grid{grid-template-columns:repeat(4,1fr)}}
+    @media(max-width:900px){.cards-grid{grid-template-columns:repeat(3,1fr)}}
+    @media(max-width:600px){.cards-grid{grid-template-columns:repeat(2,1fr)}}
+
+    .card{
+      display:none; 
+      border-radius:12px;overflow:hidden;
+      background:rgba(255,255,255,.9);
+      cursor:pointer;
+      transition:transform .24s ease,box-shadow .24s;
+      box-shadow:0 2px 10px rgba(0,0,0,.15);
+    }
+    .card.show{display:block;animation:fadeUp .4s ease both}
+    
+    @keyframes fadeUp{
+      from{opacity:0;transform:translateY(18px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+    .card:hover{transform:translateY(-4px);box-shadow:0 10px 26px rgba(0,0,0,.28)}
+
+    .card-img{position:relative;height:145px;overflow:hidden}
+    .card-img img{
+      width:100%;height:100%;object-fit:cover;
+      transition:transform .35s ease;display:block;
+    }
+    .card:hover .card-img img{transform:scale(1.06)}
+
+    .card-badge{
+      position:absolute;top:8px;left:8px;
+      background:rgba(245, 240, 225, 0.85); 
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      color:#000000;
+      font-size:.58rem;font-weight:700;
+      letter-spacing:1px;text-transform:uppercase;
+      padding:4px 12px; 
+      border-radius:50px; 
+    }
+
+    .card-body{padding:10px 12px 12px}
+    .card-body h3{
+      font-size:.88rem;font-weight:700;
+      color:#1a1008;margin-bottom:3px;line-height:1.3;
+    }
+    .card-body p{
+      font-size:.74rem;color:#555;
+      line-height:1.45;margin-bottom:5px;
+    }
+    .card-loc{
+      font-size:.67rem;color:#b07030;font-weight:500;
+      display:flex;align-items:center;gap:3px;
+    }
+    .card-loc::before{content:'📍';font-size:.64rem}
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-balance-space"></div>
+
+  <div class="nav-center-group">
+    <a href="#" class="nav-logo">TourEase</a>
+    <ul class="nav-links">
+      <li><a href="tab2.html" class="active">Spots</a></li>
+      <li><a href="#">Map</a></li>
+      <li><a href="#">Submit a Spot</a></li>
+    </ul>
+  </div>
+
+  <div class="nav-search">
+    <div class="search-wrapper">
+      <!-- Minimalist stroke vector magnifying icon instead of blue emoji -->
+      <svg class="search-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input type="text" placeholder="Search Intramuros, Binondo...">
+      <button type="button">Search</button>
+    </div>
+  </div>
+</nav>
+
+<div class="page-bg">
+  <div class="content-wrap">
+
+    <!-- HERO -->
+    <div class="hero">
+      <h1>Discover every spot in Manila</h1>
+      <p>Looking for a New Adventure? Check out these attractions in Manila</p>
+    </div>
+
+    <div class="tab-row">
+      <div class="tab-btn active">
+        <svg viewBox="0 0 38 38"><path d="M4 30 L19 6 L34 30"/><rect x="7" y="18" width="4" height="12"/><rect x="17" y="18" width="4" height="12"/><rect x="27" y="18" width="4" height="12"/><rect x="3" y="29" width="32" height="3" rx="1"/><rect x="14" y="24" width="10" height="6" rx="1"/></svg>
+        ATTRACTIONS
+      </div>
+      <div class="tab-btn" onclick="location.href='tab3.html'">
+        <svg viewBox="0 0 38 38"><circle cx="19" cy="22" r="11"/><line x1="19" y1="11" x2="19" y2="5"/><line x1="13" y1="5" x2="13" y2="13"/><line x1="25" y1="5" x2="25" y2="13"/><line x1="8" y1="22" x2="30" y2="22"/></svg>
+        FOOD
+      </div>
+      <div class="tab-btn" onclick="location.href='tab4.html'">
+        <svg viewBox="0 0 38 38"><path d="M7 32 Q7 18 13 17 Q13 9 19 9 Q25 9 25 17 Q31 18 31 32"/><line x1="5" y1="35" x2="33" y2="35"/><circle cx="29" cy="9" r="2" fill="currentColor" stroke="none"/><circle cx="33" cy="13" r="1.5" fill="currentColor" stroke="none"/><circle cx="25" cy="5" r="1.5" fill="currentColor" stroke="none"/></svg>
+        ACTIVITIES
+      </div>
+      <div class="tab-btn">
+        <svg viewBox="0 0 38 38"><path d="M3 18 L9 12 L15 18 L21 10 L27 18 L33 12"/><path d="M3 24 Q7 19 11 23 Q15 27 19 23 Q23 19 27 23 Q31 27 35 23"/><line x1="9" y1="28" x2="9" y2="33"/><line x1="19" y1="28" x2="19" y2="33"/><line x1="29" y1="28" x2="29" y2="33"/><circle cx="9" cy="28" r="2" fill="currentColor" stroke="none"/><circle cx="19" cy="28" r="2" fill="currentColor" stroke="none"/><circle cx="29" cy="28" r="2" fill="currentColor" stroke="none"/></svg>
+        EVENTS
+      </div>
+      <div class="tab-btn">
+        <svg viewBox="0 0 38 38"><rect x="3" y="20" width="32" height="13" rx="2"/><path d="M3 20 Q3 13 9 13 L29 13 Q35 13 35 20"/><rect x="7" y="24" width="10" height="9" rx="1"/><rect x="21" y="24" width="10" height="9" rx="1"/><rect x="15" y="13" width="8" height="7" rx="1"/></svg>
+        LODGINGS
+      </div>
+    </div>
+
+    <!-- SUB-FILTER PILLS -->
+    <div class="sub-filters">
+      <div class="sub-pill active" onclick="filterSub(this,'all')">All</div>
+      <div class="sub-pill" onclick="filterSub(this,'parks')">Parks</div>
+      <div class="sub-pill" onclick="filterSub(this,'churches')">Churches</div>
+      <div class="sub-pill" onclick="filterSub(this,'museums')">Museums</div>
+    </div>
+
+    <!-- CARDS GRID -->
+    <div class="cards-grid" id="cardsGrid">
+
+      <div class="card show" data-cat="parks">
+        <div class="card-img">
+          <span class="card-badge">Park</span>
+          <img src="images/Rizal Park.jpg" alt="Rizal Park">
+        </div>
+        <div class="card-body">
+          <h3>Rizal Park</h3>
+          <p>Largest urban park in Asia, home to the José Rizal Monument.</p>
+          <div class="card-loc">Ermita, Manila</div>
+        </div>
+      </div>
+
+      <div class="card show" data-cat="parks">
+        <div class="card-img">
+          <span class="card-badge">Park</span>
+          <img src="images/Paco Park.jpg" alt="Paco Park">
+        </div>
+        <div class="card-body">
+          <h3>Paco Park</h3>
+          <p>Historic walled cemetery turned tranquil garden park.</p>
+          <div class="card-loc">Paco, Manila</div>
+        </div>
+      </div>
+
+      <div class="card show" data-cat="parks">
+        <div class="card-img">
+          <span class="card-badge">Park</span>
+          <img src="images/Manila Ocean Park.jpg" alt="Manila Ocean Park">
+        </div>
+        <div class="card-body">
+          <h3>Manila Ocean Park</h3>
+          <p>Oceanarium and marine resort complex located behind the Quirino Grandstand.</p>
+          <div class="card-loc">Quirino Grandstand, Ermita</div>
+        </div>
+      </div>
+
+      <div class="card show" data-cat="parks">
+        <div class="card-img">
+          <span class="card-badge">Park</span>
+          <img src="images/Arroceros Forest.jpg" alt="Arroceros Forest Park">
+        </div>
+        <div class="card-body">
+          <h3>Arroceros Forest Park</h3>
+          <p>Manila's last urban forest, a lush green refuge in the city.</p>
+          <div class="card-loc">Ermita, Manila</div>
+        </div>
+      </div>
+
+      <div class="card show" data-cat="parks">
+        <div class="card-img">
+          <span class="card-badge">Park</span>
+          <img src="images/Mehan Garden Manila.jpg" alt="Mehan Garden">
+        </div>
+        <div class="card-body">
+          <h3>Mehan Garden</h3>
+          <p>Peaceful public garden space established during the Spanish colonial period.</p>
+          <div class="card-loc">Santa Cruz, Manila</div>
+        </div>
+      </div>
+
+      <div class="card show" data-cat="churches">
+        <div class="card-img">
+          <span class="card-badge">Church</span>
+          <img src="images/Manila Cathedral.jpg" alt="Manila Cathedral">
+        </div>
+        <div class="card-body">
+          <h3>Manila Cathedral</h3>
+          <p>Romanesque basilica and metropolitan cathedral church.</p>
+          <div class="card-loc">Intramuros, Manila</div>
+        </div>
+      </div>
+
+      <div class="card show" data-cat="churches">
+        <div class="card-img">
+          <span class="card-badge">Church</span>
+          <img src="images/Quiapo Church.jpg" alt="Quiapo Church">
+        </div>
+        <div class="card-body">
+          <h3>Quiapo Church</h3>
+          <p>Home of the revered Black Nazarene statue.</p>
+          <div class="card-loc">Quiapo, Manila</div>
+        </div>
+      </div>
+
+      <div class="card show" data-cat="churches">
+        <div class="card-img">
+          <span class="card-badge">Church</span>
+          <img src="images/San Agustin Church.jpg" alt="San Agustin Church">
+        </div>
+        <div class="card-body">
+          <h3>San Agustin Church</h3>
+          <p>The oldest stone church in the Philippines, a UNESCO World Heritage site.</p>
+          <div class="card-loc">Intramuros, Manila</div>
+        </div>
+      </div>
+
+      <div class="card show" data-cat="churches">
+        <div class="card-img">
+          <span class="card-badge">Church</span>
+          <img src="images/Binondo Church.jpg" alt="Binondo Church">
+        </div>
+        <div class="card-body">
+          <h3>Binondo Church</h3>
+          <p>Historic baroque church founded by Dominican priests in 1596.</p>
+          <div class="card-loc">Binondo, Manila</div>
+        </div>
+      </div>
+
+      <div class="card show" data-cat="museums">
+        <div class="card-img">
+          <span class="card-badge">Museum</span>
+          <img src="images/National Museum.jpg" alt="National Museum">
+        </div>
+        <div class="card-body">
+          <h3>National Museum</h3>
+          <p>The premier repository of Philippine art, history, and culture.</p>
+          <div class="card-loc">Ermita, Manila</div>
+        </div>
+      </div>
+
+      <div class="card show" data-cat="museums">
+        <div class="card-img">
+          <span class="card-badge">Museum</span>
+          <img src="images/Casa Manila Museum.jpg" alt="Casa Manila">
+        </div>
+        <div class="card-body">
+          <h3>Casa Manila</h3>
+          <p>Grand Spanish colonial lifestyle house museum replica.</p>
+          <div class="card-loc">Intramuros, Manila</div>
+        </div>
+      </div>
+
+      <div class="card show" data-cat="historic">
+        <div class="card-img">
+          <span class="card-badge">Historic</span>
+          <img src="images/Fort Santiago.jpg" alt="Fort Santiago">
+        </div>
+        <div class="card-body">
+          <h3>Fort Santiago</h3>
+          <p>Spanish-era citadel and historical site inside the walled city of Intramuros.</p>
+          <div class="card-loc">Intramuros, Manila</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  function filterSub(el, cat) {
+    document.querySelectorAll('.sub-pill').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    let d = 0;
+    document.querySelectorAll('.card').forEach(c => {
+      const match = cat === 'all' || c.dataset.cat === cat;
+      c.classList.toggle('show', match);
+      if (match) {
+        c.style.animationDelay = (d++ * 0.05) + 's';
+        c.style.animation = 'none';
+        void c.offsetWidth;
+        c.style.animation = 'fadeUp .4s ease both';
+      }
+    });
+  }
+</script>
+</body>
+</html>
